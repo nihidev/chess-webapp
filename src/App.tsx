@@ -96,6 +96,7 @@ function GameView({ config, onNewGame }: GameViewProps) {
               fen={game.fen}
               status={game.status}
               isComputerThinking={game.isComputerThinking}
+              moveHistory={game.moveHistory}
             />
             <GameControls onNewGame={onNewGame} />
           </div>

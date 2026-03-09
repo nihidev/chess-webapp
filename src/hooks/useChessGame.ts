@@ -51,6 +51,11 @@ export interface LastMove {
   to: string
 }
 
+export interface MoveHistoryEntry {
+  san: string
+  color: 'w' | 'b'
+}
+
 export interface UseChessGameReturn {
   fen: string
   status: GameStatus
@@ -62,6 +67,7 @@ export interface UseChessGameReturn {
   lastMove: LastMove | null
   capturedByWhite: string[]
   capturedByBlack: string[]
+  moveHistory: MoveHistoryEntry[]
 }
 
 export function useChessGame(options: UseChessGameOptions = {}): UseChessGameReturn {
@@ -83,6 +89,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
   const [lastMove, setLastMove] = useState<LastMove | null>(null)
   const [capturedByWhite, setCapturedByWhite] = useState<string[]>([])
   const [capturedByBlack, setCapturedByBlack] = useState<string[]>([])
+  const [moveHistory, setMoveHistory] = useState<MoveHistoryEntry[]>([])
 
   /** Updates captured pieces state after a move is applied. */
   function recordCapture(capturedPiece: string | null, movingColor: 'w' | 'b'): void {
@@ -110,6 +117,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
       setStatus(newStatus)
       setLastMove({ from, to })
       recordCapture(capturedPiece, movingColor)
+      setMoveHistory((prev) => [...prev, { san: move.san, color: move.color }])
       return { fen: chess.fen(), pgn: chess.pgn(), status: newStatus, capturedPiece }
     } catch {
       return null
@@ -138,6 +146,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
           setStatus(deriveStatus(chess))
           setLastMove({ from, to })
           recordCapture(capturedPiece, movingColor)
+          setMoveHistory((prev) => [...prev, { san: move.san, color: move.color }])
         } catch {
           // Engine returned an illegal move — ignore
         }
@@ -210,6 +219,7 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     setLastMove(null)
     setCapturedByWhite([])
     setCapturedByBlack([])
+    setMoveHistory([])
   }, [])
 
   return {
@@ -223,5 +233,6 @@ export function useChessGame(options: UseChessGameOptions = {}): UseChessGameRet
     lastMove,
     capturedByWhite,
     capturedByBlack,
+    moveHistory,
   }
 }
