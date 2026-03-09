@@ -1,98 +1,34 @@
-/** Displays captured pieces for each side, sorted by piece value descending. */
+/** Renders captured pieces for one side as a compact inline tray. */
 
-const PIECE_VALUE: Record<string, number> = {
-  q: 9,
-  r: 5,
-  b: 3,
-  n: 3,
-  p: 1,
-}
+const PIECE_VALUE: Record<string, number> = { q: 9, r: 5, b: 3, n: 3, p: 1 }
 
-const WHITE_UNICODE: Record<string, string> = {
-  q: '♛',
-  r: '♜',
-  b: '♝',
-  n: '♞',
-  p: '♟',
-}
-
-const BLACK_UNICODE: Record<string, string> = {
-  q: '♕',
-  r: '♖',
-  b: '♗',
-  n: '♘',
-  p: '♙',
-}
+const UNICODE_BLACK: Record<string, string> = { q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' }
+const UNICODE_WHITE: Record<string, string> = { q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' }
 
 interface CapturedPiecesProps {
-  /** Pieces captured by the White player (Black pieces taken). */
-  capturedByWhite: string[]
-  /** Pieces captured by the Black player (White pieces taken). */
-  capturedByBlack: string[]
+  /** The list of captured pieces (piece type chars, e.g. 'q','r','p'). */
+  pieces: string[]
+  /** Which unicode set to render — 'black' for solid pieces, 'white' for outline pieces. */
+  pieceColor: 'black' | 'white'
 }
 
-function sortedPieces(pieces: string[]): string[] {
-  /** Sorts piece array by value descending. */
+function sorted(pieces: string[]): string[] {
   return [...pieces].sort((a, b) => (PIECE_VALUE[b] ?? 0) - (PIECE_VALUE[a] ?? 0))
 }
 
-export function CapturedPieces({ capturedByWhite, capturedByBlack }: CapturedPiecesProps) {
-  const whiteSorted = sortedPieces(capturedByWhite)
-  const blackSorted = sortedPieces(capturedByBlack)
+export function CapturedPieces({ pieces, pieceColor }: CapturedPiecesProps) {
+  const map = pieceColor === 'black' ? UNICODE_BLACK : UNICODE_WHITE
+  const list = sorted(pieces)
 
-  const rowStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.25rem',
-    minHeight: '1.75rem',
-    fontSize: '1.25rem',
-    flexWrap: 'wrap',
-  }
-
-  const labelStyle: React.CSSProperties = {
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    color: '#666',
-    minWidth: '3.5rem',
+  if (list.length === 0) {
+    return <span className="capture-tray-empty">—</span>
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.25rem',
-        padding: '0.5rem 0',
-        width: '100%',
-      }}
-      aria-label="Captured pieces"
-    >
-      <div style={rowStyle}>
-        <span style={labelStyle}>White:</span>
-        {whiteSorted.length === 0 ? (
-          <span style={{ color: '#ccc', fontSize: '0.85rem' }}>—</span>
-        ) : (
-          whiteSorted.map((p, i) => (
-            <span key={i} title={p} aria-label={`captured ${p}`}>
-              {WHITE_UNICODE[p] ?? p}
-            </span>
-          ))
-        )}
-      </div>
-      <div style={rowStyle}>
-        <span style={labelStyle}>Black:</span>
-        {blackSorted.length === 0 ? (
-          <span style={{ color: '#ccc', fontSize: '0.85rem' }}>—</span>
-        ) : (
-          blackSorted.map((p, i) => (
-            <span key={i} title={p} aria-label={`captured ${p}`}>
-              {BLACK_UNICODE[p] ?? p}
-            </span>
-          ))
-        )}
-      </div>
-    </div>
+    <span className="capture-tray" aria-label="Captured pieces">
+      {list.map((p, i) => (
+        <span key={i} title={p}>{map[p] ?? p}</span>
+      ))}
+    </span>
   )
 }

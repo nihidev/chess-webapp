@@ -20,34 +20,39 @@ export function ModeSelection({ onStart }: ModeSelectionProps) {
 
   if (step === 'config') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-        <h2 style={{ margin: 0 }}>Human vs Computer</h2>
+      <div className="config-panel">
+        <div>
+          <h2>vs Computer</h2>
+          <p style={{ color: 'var(--text-2)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+            Configure your game
+          </p>
+        </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
-          <span>Play as:</span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="config-section">
+          <span className="config-label">Play as</span>
+          <div className="config-options">
             {([PlayerColor.White, PlayerColor.Black] as const).map((c) => (
               <button
                 key={c}
                 type="button"
+                className={`btn btn-toggle${playerColor === c ? ' active' : ''}`}
                 onClick={() => { setPlayerColor(c) }}
-                style={{ fontWeight: playerColor === c ? 'bold' : 'normal' }}
               >
-                {c}
+                {c === PlayerColor.White ? '♔' : '♚'} {c}
               </button>
             ))}
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
-          <span>Difficulty:</span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="config-section">
+          <span className="config-label">Difficulty</span>
+          <div className="config-options">
             {([Difficulty.Easy, Difficulty.Medium, Difficulty.Hard] as const).map((d) => (
               <button
                 key={d}
                 type="button"
+                className={`btn btn-toggle${difficulty === d ? ' active' : ''}`}
                 onClick={() => { setDifficulty(d) }}
-                style={{ fontWeight: difficulty === d ? 'bold' : 'normal' }}
               >
                 {d}
               </button>
@@ -55,21 +60,36 @@ export function ModeSelection({ onStart }: ModeSelectionProps) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button type="button" onClick={() => { setStep('mode') }}>Back</button>
-          <button type="button" onClick={handleStart}>Start Game</button>
+        <div className="config-footer">
+          <button type="button" className="btn btn-ghost" onClick={() => { setStep('mode') }}>
+            ← Back
+          </button>
+          <button type="button" className="btn btn-primary" onClick={handleStart}>
+            Start Game →
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-      <h2 style={{ margin: 0 }}>Select Mode</h2>
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <button type="button" onClick={handleHvH}>Human vs Human</button>
-        <button type="button" onClick={() => { setStep('config') }}>Human vs Computer</button>
+    <>
+      <div className="mode-hero">
+        <h1>♔ Chess</h1>
+        <p>Play chess in your browser — no account needed</p>
       </div>
-    </div>
+      <div className="mode-cards">
+        <button type="button" className="mode-card" onClick={handleHvH}>
+          <span className="mode-card-icon">👥</span>
+          <span className="mode-card-title">Human vs Human</span>
+          <span className="mode-card-desc">Play with a friend on the same device</span>
+        </button>
+        <button type="button" className="mode-card" onClick={() => { setStep('config') }}>
+          <span className="mode-card-icon">🤖</span>
+          <span className="mode-card-title">vs Computer</span>
+          <span className="mode-card-desc">Challenge the Stockfish engine</span>
+        </button>
+      </div>
+    </>
   )
 }

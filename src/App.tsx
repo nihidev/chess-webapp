@@ -1,5 +1,5 @@
 /** Root application component — mode selection and game routing. */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useChessGame } from './hooks/useChessGame'
 import { useStockfish } from './hooks/useStockfish'
 import { Board } from './components/Board'
@@ -7,24 +7,11 @@ import { StatusBar } from './components/StatusBar'
 import { GameControls } from './components/GameControls'
 import { ModeSelection } from './components/ModeSelection'
 import { CapturedPieces } from './components/CapturedPieces'
-import type { GameConfig } from './types'
-import type { PromotionPiece } from './types'
-
-const PAGE_STYLE: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100vh',
-  fontFamily: 'sans-serif',
-  padding: '1rem',
-  boxSizing: 'border-box',
-}
+import { GameMode, type GameConfig, type PromotionPiece } from './types'
 
 const MIN_BOARD = 280
 const MAX_BOARD = 560
 
-/** Computes responsive board width clamped between MIN_BOARD and MAX_BOARD. */
 function computeBoardWidth(): number {
   const vw = window.innerWidth
   const candidate = Math.floor(vw * 0.9)
@@ -32,19 +19,12 @@ function computeBoardWidth(): number {
 }
 
 function useBoardWidth(): number {
-  /** Tracks viewport width and returns a clamped board size. */
   const [boardWidth, setBoardWidth] = useState<number>(computeBoardWidth)
-
   useEffect(() => {
-    function handleResize() {
-      setBoardWidth(computeBoardWidth())
-    }
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
+    function onResize() { setBoardWidth(computeBoardWidth()) }
+    window.addEventListener('resize', onResize)
+    return () => { window.removeEventListener('resize', onResize) }
   }, [])
-
   return boardWidth
 }
 
@@ -54,78 +34,74 @@ interface GameViewProps {
 }
 
 function GameView({ config, onNewGame }: GameViewProps) {
-  /** Renders the main game layout with board, status, controls, and captured pieces. */
   const { getBestMove } = useStockfish(config.mode)
   const game = useChessGame({ config, getBestMove })
   const boardWidth = useBoardWidth()
-  const boardContainerRef = useRef<HTMLDivElement>(null)
-
-  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth < 768)
-
-  useEffect(() => {
-    function handleResize() {
-      setIsMobile(window.innerWidth < 768)
-    }
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
 
   function handlePromotionSelect(piece: PromotionPiece) {
     game.confirmPromotion(piece)
   }
 
-  const gameAreaStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: isMobile ? 'column' : 'row',
-    alignItems: isMobile ? 'center' : 'flex-start',
-    gap: '1.5rem',
-    width: '100%',
-    maxWidth: isMobile ? `${boardWidth}px` : '900px',
-    justifyContent: 'center',
-  }
-
-  const sidebarStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.75rem',
-    minWidth: isMobile ? `${boardWidth}px` : '180px',
-    maxWidth: isMobile ? `${boardWidth}px` : '220px',
-    width: isMobile ? `${boardWidth}px` : undefined,
-  }
+  const isHvC = config.mode === GameMode.HumanVsComputer
+  const difficultyLabel = isHvC ? config.difficulty : null
 
   return (
-    <main style={PAGE_STYLE}>
-      <h1 style={{ marginBottom: '0.5rem' }}>Chess</h1>
-      <StatusBar fen={game.fen} status={game.status} />
-      {game.isComputerThinking && (
-        <p
-          aria-live="polite"
-          style={{ color: '#888', margin: '0.25rem 0' }}
-        >
-          Computer is thinking…
-        </p>
-      )}
-      <div style={gameAreaStyle} ref={boardContainerRef}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Board
-            game={game}
-            boardWidth={boardWidth}
-            lastMove={game.lastMove}
-            pendingPromotion={game.pendingPromotion}
-            onPromotionSelect={handlePromotionSelect}
-          />
-          <CapturedPieces
-            capturedByWhite={game.capturedByWhite}
-            capturedByBlack={game.capturedByBlack}
-          />
-        </div>
-        <div style={sidebarStyle}>
-          <GameControls onNewGame={onNewGame} />
+    <div className="app">
+      {/* ── Header ── */}
+      <header className="header">
+        <span className="header-logo">
+          <span className="header-logo-icon">♔</span>
+          Chess
+        </span>
+        {isHvC && difficultyLabel && (
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+            vs Computer · {difficultyLabel}
+          </span>
+        )}
+      </header>
+
+      {/* ── Game Content ── */}
+      <div className="game-page">
+        <div className="game-content">
+
+          {/* ── Board Column ── */}
+          <div className="board-column">
+            {/* Black player strip (top) */}
+            <div className="player-strip player-strip--top">
+              <div className="player-avatar player-avatar--black">♚</div>
+              <span className="player-name">Black</span>
+              <CapturedPieces pieces={game.capturedByBlack} pieceColor="white" />
+            </div>
+
+            {/* Board */}
+            <Board
+              game={game}
+              boardWidth={boardWidth}
+              lastMove={game.lastMove}
+              pendingPromotion={game.pendingPromotion}
+              onPromotionSelect={handlePromotionSelect}
+            />
+
+            {/* White player strip (bottom) */}
+            <div className="player-strip player-strip--bottom">
+              <div className="player-avatar player-avatar--white">♔</div>
+              <span className="player-name">White</span>
+              <CapturedPieces pieces={game.capturedByWhite} pieceColor="black" />
+            </div>
+          </div>
+
+          {/* ── Sidebar ── */}
+          <div className="sidebar">
+            <StatusBar
+              fen={game.fen}
+              status={game.status}
+              isComputerThinking={game.isComputerThinking}
+            />
+            <GameControls onNewGame={onNewGame} />
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
 
@@ -134,19 +110,24 @@ function App() {
 
   if (!config) {
     return (
-      <main style={PAGE_STYLE}>
-        <h1 style={{ marginBottom: '1rem' }}>Chess</h1>
-        <ModeSelection onStart={setConfig} />
-      </main>
+      <div className="app">
+        <header className="header">
+          <span className="header-logo">
+            <span className="header-logo-icon">♔</span>
+            Chess
+          </span>
+        </header>
+        <main className="mode-page">
+          <ModeSelection onStart={setConfig} />
+        </main>
+      </div>
     )
   }
 
   return (
     <GameView
       config={config}
-      onNewGame={() => {
-        setConfig(null)
-      }}
+      onNewGame={() => { setConfig(null) }}
     />
   )
 }
