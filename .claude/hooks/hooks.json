@@ -1,0 +1,27 @@
+{
+  "hooks": [
+    {
+      "event": "SessionStart",
+      "command": "bash .claude/hooks/session-start.sh"
+    },
+    {
+      "event": "Stop",
+      "command": "bash .claude/hooks/session-end.sh"
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": {
+        "tool_name": "Write|Edit|str_replace_based_edit_tool"
+      },
+      "command": "bash .claude/hooks/post-edit.sh"
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": {
+        "tool_name": "Bash",
+        "input_contains": "git commit"
+      },
+      "command": "bash .claude/hooks/pre-commit.sh"
+    }
+  ]
+}

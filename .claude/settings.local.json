@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv add fastapi \"uvicorn[standard]\" httpx pydantic 2>&1)",
+      "Bash(uv run pytest -xvs 2>&1)",
+      "Bash(uv add --dev pytest-asyncio 2>&1)",
+      "Bash(wc -l /Users/dev/Downloads/claude-code-setup/.claude/agents/*.md)",
+      "Bash(SETUP_DIR=\"/Users/dev/Downloads/claude-code-setup\"\nPROJECT_SLUG=\"url-shortener\"\nPROJECT_DIR=\"$SETUP_DIR/projects/$PROJECT_SLUG\"\n\nmkdir -p \"$PROJECT_DIR\"\ncp -r \"$SETUP_DIR/.claude\" \"$PROJECT_DIR/.claude\"\nmkdir -p \"$PROJECT_DIR/docs\"\n\ncd \"$PROJECT_DIR\"\ngit init\ngit add .claude\ngit commit -m \"chore: init url-shortener with claude scaffold\"\necho \"DONE: $PROJECT_DIR\")",
+      "Bash(git branch -m master main && bash .claude/hooks/update-claude-md.sh --name \"url-shortener\" --type \"NEW_PROJECT\" --goal \"Simplified bit.ly clone with shorten/redirect, hashing, storage, collision handling\" --language \"Python 3.12 + FastAPI\" --phase \"PLANNING\")"
+    ]
+  }
+}
