@@ -17,10 +17,7 @@ export function useStockfish(mode: GameMode): UseStockfishReturn {
   useEffect(() => {
     if (mode !== GameMode.HumanVsComputer) return
 
-    const worker = new Worker(
-      new URL('../workers/stockfish.worker.ts', import.meta.url),
-      { type: 'module' },
-    )
+    const worker = new Worker('/stockfish-worker.js')
     workerRef.current = worker
 
     return () => {

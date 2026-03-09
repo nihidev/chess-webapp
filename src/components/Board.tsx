@@ -17,6 +17,8 @@ export function Board({ game }: BoardProps) {
     status === GameStatus.Draw ||
     status === GameStatus.Stalemate
 
+  const isDraggingDisabled = isGameOver || game.isComputerThinking
+
   function onPieceDrop(sourceSquare: Square, targetSquare: Square): boolean {
     const result = makeMove(sourceSquare, targetSquare)
     setSelectedSquare(null)
@@ -24,7 +26,7 @@ export function Board({ game }: BoardProps) {
   }
 
   function onSquareClick(square: Square) {
-    if (isGameOver) return
+    if (isDraggingDisabled) return
 
     if (selectedSquare) {
       const result = makeMove(selectedSquare, square)
@@ -43,7 +45,7 @@ export function Board({ game }: BoardProps) {
         position={fen}
         onPieceDrop={onPieceDrop}
         onSquareClick={onSquareClick}
-        arePiecesDraggable={!isGameOver}
+        arePiecesDraggable={!isDraggingDisabled}
         customSquareStyles={
           selectedSquare
             ? { [selectedSquare]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' } }
