@@ -1,7 +1,12 @@
-/** Root application component — mode selection and game routing. */
-import { GameMode, GameStatus } from './types'
+/** Root application component — Human vs Human chess game. */
+import { useChessGame } from './hooks/useChessGame'
+import { Board } from './components/Board'
+import { StatusBar } from './components/StatusBar'
+import { GameControls } from './components/GameControls'
 
 function App() {
+  const game = useChessGame()
+
   return (
     <main
       style={{
@@ -13,15 +18,10 @@ function App() {
         fontFamily: 'sans-serif',
       }}
     >
-      <h1>Chess</h1>
-      <p>Select a game mode to begin.</p>
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <button type="button">{GameMode.HumanVsHuman.replace('Vs', ' vs ')}</button>
-        <button type="button">{GameMode.HumanVsComputer.replace('Vs', ' vs ')}</button>
-      </div>
-      <p style={{ color: '#888', marginTop: '2rem', fontSize: '0.875rem' }}>
-        Status: {GameStatus.Idle}
-      </p>
+      <h1 style={{ marginBottom: '0.5rem' }}>Chess</h1>
+      <StatusBar fen={game.fen} status={game.status} />
+      <Board game={game} />
+      <GameControls onNewGame={game.resetGame} />
     </main>
   )
 }
