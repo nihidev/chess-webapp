@@ -46,3 +46,6 @@ export interface StockfishRequest {
 export interface StockfishResponse {
   bestMove: string
 }
+
+/** The four valid pawn promotion pieces in UCI notation. */
+export type PromotionPiece = 'q' | 'r' | 'b' | 'n'
